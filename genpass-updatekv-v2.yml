@@ -1,0 +1,33 @@
+trigger: none
+
+pool:
+  name: Default
+
+steps:
+
+- task: AzurePowerShell@5
+  inputs:
+    azureSubscription: 'hinz-vega-sc-dev'
+    ScriptType: 'InlineScript'
+    Inline: |
+      Connect-AzAccount
+      
+      # Generate a new password
+      $newPassword = -join ((33..126) | Get-Random -Count 8 | % {[char]$_})
+      
+      # Update the secret in the Key Vault
+      az keyvault secret set --name secretPassword --vault-name Keyvault-Hinz-Vega1 --value $newPassword
+      
+      # Get the new password from the Key Vault
+      $password = az keyvault secret show --name secretPassword --vault-name Keyvault-Hinz-Vega1 --query value -o tsv
+      
+      # Get the username from the Key Vault
+      $username = az keyvault secret show --name secretUsername --vault-name Keyvault-Hinz-Vega1 --query value -o tsv
+      
+      # Update the password of the VM
+      az vm user update --resource-group hinz-vega-test-1 --name vmLJHH --username $username --password $password
+      
+      # Restart the VM
+      az vm restart --resource-group hinz-vega-test-1 --name vmLJHH
+    azurePowerShellVersion: 'LatestVersion'
+

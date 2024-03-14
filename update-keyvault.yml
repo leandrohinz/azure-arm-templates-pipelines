@@ -1,0 +1,15 @@
+trigger: none
+
+pool:
+  name: Default
+
+steps:
+- task: AzurePowerShell@5
+  inputs:
+    azureSubscription: 'hinz-vega-sc-dev'
+    ScriptType: 'InlineScript'
+    Inline: |
+      Connect-AzAccount
+      Set-AzKeyVaultAccessPolicy -VaultName Keyvault-Hinz-Vega1 -UserPrincipalName leandro.hinestroza@vegax20hotmail.onmicrosoft.com -PermissionsToSecrets get,set,list,delete
+      Set-AzKeyVaultAccessPolicy -VaultName Keyvault-Hinz-Vega1 -UserPrincipalName andres.torres@vegax20hotmail.onmicrosoft.com -PermissionsToSecrets get,set,list,delete
+    azurePowerShellVersion: 'LatestVersion'
